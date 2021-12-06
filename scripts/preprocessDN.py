@@ -62,36 +62,60 @@ if __name__ == '__main__':
     preprocess_dn = PreprocessDN()     
     
 
-    # WARNING: For temporary. This is in the case that the depth image is RGB, which is the wrong one.
-    cv_MatI = cv.imread('./images/depth.png',cv.IMREAD_GRAYSCALE)
+    cv_MatI = cv.imread('./images/d_image_2_000000.png',cv.IMREAD_GRAYSCALE)
+    print(f'origin cv_MatI: {cv_MatI}')
     # cv.imshow("original mat",cv_MatI)
     
-    # orig_rows = cv_MatI.shape[1]
-    # orig_cols = cv_MatI.shape[0]
+    cols = cv_MatI.shape[1] # x
+    rows = cv_MatI.shape[0] # y
+    print(f'rows:{rows} cols:{cols} \n')
+    
     # cv_MatI = cv.resize(cv_MatI, (int(0.1*orig_rows),int(0.1*orig_cols)))
-    cv.imshow("test_resized",cv_MatI)
+    rowmin = int(0.40*rows)
+    rowmax = int(0.60*rows)
+    colmin = int(0.40*cols)
+    colmax = int(0.60*cols)
+    
+
+    cv_MatI = np.array(np.uint8(cv_MatI))
+    print(cv_MatI.shape)
+    cv_MatI = cv_MatI[rowmin:rowmax , colmin:colmax] 
+    print(f'numpy cv_MatI[]: {cv_MatI} \n')
+    
+    cv.imshow("show middle",cv_MatI)    
     cv.waitKey(0)
+    
+    
+    
+    
+    
+    
+    
+    
+    # cv.imshow("test_resized",cv_MatI)
+    # cv.waitKey(0)
 
  
-    MatI = torch.Tensor(cv_MatI) + 1e-10    # In case it appear zero element
-    # print(MatI)
+    # MatI = torch.Tensor(cv_MatI) + 1e-10    # In case it appear zero element
+    # # print(MatI)
     
-    MatI_lt_one = MatI < 1.0
-    MatI[MatI_lt_one] = 1.0
-    print(MatI)
+    # MatI_lt_one = MatI < 1.0
+    # MatI[MatI_lt_one] = 1.0
+    # print(f'MatI after preprocess: {MatI} \n')
     
     
-    # cv.imshow("tensor to ndarray",np.uint8(MatI))
-    # cv.waitKey(0)
+    # # cv.imshow("tensor to ndarray",np.uint8(MatI))
+    # # cv.waitKey(0)
     
-    temp_str = DIR_NAME + './temp_result/test.png'
-    cv.imwrite(temp_str, np.uint8(MatI))
+    # temp_str = DIR_NAME + './temp_result/test.png'
+    # cv.imwrite(temp_str, np.uint8(MatI))
     
-    print("Compute:")
-    MatD,MatU = preprocess_dn.compute(MatI)
-    print(MatD.shape)
-    print(MatU.shape)    
-    print(MatD)
+    # print("Compute:")
+    # MatD,MatU = preprocess_dn.compute(MatI)
+    # print(f'MatD.shape: {MatD.shape} \n')
+    # print(f'MatU.shape: {MatU.shape} \n')    
+    # print(f'MatD: {MatD} \n')
+    # print(f'MatUx: {MatU[:,:,0]} \n')
 
 
     
