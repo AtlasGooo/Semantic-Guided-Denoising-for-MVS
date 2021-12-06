@@ -314,7 +314,7 @@ if __name__ == '__main__':
     MatI_lt_one = MatI < 1.0
     MatI[MatI_lt_one] = 1.0
     print(f'MatI: \n{MatI}')
-    print(f'cv_MatI[0:10,35:45]: \n{cv_MatI[0:10,35:45]} \n')
+    print(f'MatI[0:10,35:45]: \n{MatI[0:10,35:45]} \n')
     
     
     '''preprocess'''
@@ -367,7 +367,11 @@ if __name__ == '__main__':
         print(f'require grad ? {MatD.requires_grad} {MatU.requires_grad} {MatD_orig.requires_grad}')
         print(f'MatD grad and MatUx grad: {MatD.grad.shape} {MatU.grad.shape} \n')
         print(f'Grads has nan? MatD.grad: {torch.any(torch.isnan(MatD.grad))} \tMatU.grad: {torch.any(torch.isnan(MatU.grad))}\n')
+
         print(f'Where is nan? \nMatD.grad nan: \n{torch.nonzero(torch.isnan(MatD.grad))} \nMatU.grad nan: \n{torch.nonzero(torch.isnan((MatU.grad)))}\n')
+        print(f'MatD.grad[0:10,35:45]: \n{MatD.grad[0:10,35:45]} \n')
+        print(f'MatU.grad[0:10,35:45]: \n{MatU.grad[0:10,35:45]} \n')        
+        
         print(f'MatD.grad: \n{MatD.grad} \n')
         print(f'MatU.grad[0:10,0:10]: \n{MatU.grad[0:10,0:10]} \n')
         print(f'MatU.grad[10:20,10:20]: \n{MatU.grad[10:20,10:20]} \n')
