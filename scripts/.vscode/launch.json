@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": [" > console_output/4.txt"]
+            "args": [" > console_output/5.txt"]
         }
     ]
 }

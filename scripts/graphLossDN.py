@@ -311,8 +311,15 @@ if __name__ == '__main__':
       
     '''eliminate singular elements'''
     MatI = torch.Tensor(cv_MatI)    # In case it appear zero element
-    MatI_lt_one = MatI < 1.0
-    MatI[MatI_lt_one] = 1.0
+
+    
+    '''TODO: (test) (debug) check out the reason that nan exist'''
+    MatI_lt_one = MatI < 10.0    
+    MatI[MatI_lt_one] = 10.0
+    # MatI_lt_one = MatI < 1.0    
+    # MatI[MatI_lt_one] = 1.0
+    
+    
     print(f'MatI: \n{MatI}')
     print(f'MatI[0:10,35:45]: \n{MatI[0:10,35:45]} \n')
     
@@ -335,7 +342,8 @@ if __name__ == '__main__':
     print("debug:")
     print(f'MatD.shape: {MatD.shape} \nhas nan? {torch.any(torch.isnan(MatD))} \nMatD: \n{MatD} \n')
     print(f'MatU.shape: {MatU.shape} \nhas nan? {torch.any(torch.isnan(MatU))} \nMatUx: \n{MatU[:,:,0]} \n\n\n\n')
-    
+    print(f'MatD[0:10,35:45]: \n{MatD[0:10,35:45]} \n') 
+    print(f'MatU[0:10,35:45]: \n{MatU[0:10,35:45]} \n')       
     MatD.requires_grad = True
     MatU.requires_grad = True
 
