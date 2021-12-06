@@ -216,6 +216,10 @@ class GraphLossDN():
         
         
         '''TODO: (test) exame these element'''
+        print(f'mat_omega_topk has nan? {torch.any(torch.isnan(mat_omega_topk))} \n')
+        print(f'mat_duij has nan? {torch.any(torch.isnan(mat_duij))} \n')
+        print(f'mat_uij has nan? {torch.any(torch.isnan(mat_uij))} \n')
+        
         print(f'mat_omega_topk: {mat_omega_topk} \n')
         print(f'mat_duij: {mat_duij} \n')
         print(f'mat_uij: {mat_uij} \n')        
@@ -322,8 +326,8 @@ if __name__ == '__main__':
     
     '''TODO: (test)'''
     print("debug:")
-    print(f'MatD.shape: {MatD.shape} \n MatD: {MatD}')
-    print(f'MatU.shape: {MatU.shape} \n MatUx: {MatU[:,:,0]}   \n\n\n\n')
+    print(f'MatD.shape: {MatD.shape} \nhas nan? {torch.any(torch.isnan(MatD))} \nMatD: {MatD} \n')
+    print(f'MatU.shape: {MatU.shape} \nhas nan? {torch.any(torch.isnan(MatU))} \nMatUx: {MatU[:,:,0]} \n\n\n\n')
     
     MatD.requires_grad = True
     MatU.requires_grad = True
@@ -355,6 +359,7 @@ if __name__ == '__main__':
         '''TODO: (test)'''
         print(f'require grad ? {MatD.requires_grad} {MatU.requires_grad} {MatD_orig.requires_grad}')
         print(f'MatD grad and MatUx grad: {MatD.grad.shape} {MatU.grad.shape} \n')
+        print(f'Grads has nan? MatD.grad: {torch.any(torch.isnan(MatD.grad))} MatU.grad: {torch.any(torch.isnan(MatU.grad))}\n')
         print(f'MatD.grad: {MatD.grad} \n')
         print(f'MatU.grad[0:10,0:10]: {MatU.grad[0:10,0:10]} \n')
         print(f'MatU.grad[10:20,10:20]: {MatU.grad[10:20,10:20]} \n')
@@ -369,8 +374,8 @@ if __name__ == '__main__':
         
         
         '''TODO: (test)'''
-        print(f'Optimized result :\n MatD: {MatD} \nMatUx: {MatU[:,:,0]}  \n\n\n\n\n ')
-        
+        print(f'Optimized result :\nMatD: \nhas nan? {torch.any(torch.isnan(MatD))} \n{MatD} \n')
+        print(f'MatUx: \n has nan? {torch.any(torch.isnan(MatU))} \n{MatU[:,:,0]}  \n\n\n\n\n')
         # temp_str = DIR_NAME + './temp_result/iter_' + str(t) + '.png'
         # cv.imwrite(temp_str, np.uint8(MatI))
         
