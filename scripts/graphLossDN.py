@@ -284,6 +284,8 @@ if __name__ == '__main__':
   
     '''read image , copy from preprocessDN __main__'''
     cv_MatI = cv.imread('./images/d_image_2_000000.png',cv.IMREAD_GRAYSCALE)
+
+    
     
     rows = cv_MatI.shape[0] # y    
     cols = cv_MatI.shape[1] # x
@@ -293,10 +295,12 @@ if __name__ == '__main__':
     rowmax = int(0.55*rows)
     colmin = int(0.35*cols)
     colmax = int(0.45*cols)
+      
     
-    cv_MatI = np.array(np.uint8(cv_MatI))
-    # print(cv_MatI.shape)
-    cv_MatI = cv_MatI[rowmin:rowmax , colmin:colmax]     
+    
+    cv_MatI = np.array(np.float32(cv_MatI))
+    cv_MatI = cv_MatI[rowmin:rowmax , colmin:colmax] 
+    print(f'cv_MatI numpy float32: \n{cv_MatI}')        
     # cv.imshow("cutted matI",cv_MatI)
     # cv.waitKey(0)
     
@@ -308,7 +312,7 @@ if __name__ == '__main__':
     MatI = torch.Tensor(cv_MatI) + 1e-10    # In case it appear zero element
     MatI_lt_one = MatI < 1.0
     MatI[MatI_lt_one] = 1.0
-
+    print(f'MatI: \n{MatI}')
 
     '''preprocess'''
     MatD,MatU = preprocess_dn.compute(MatI)
