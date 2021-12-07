@@ -5,6 +5,8 @@ import sys
 import time
 import numpy as np
 import torch
+from torch import nn
+
 import torch.optim as optim
 import math
 import matplotlib.pyplot as plt

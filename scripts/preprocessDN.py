@@ -6,7 +6,7 @@ from utils import *
 
 
 
-class PreprocessDN():
+class PreprocessDN(nn.Module):
     '''
     params : none
     input : depth img MatI
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     These are demos
     '''
     
-    sys.path.append(DIR_NAME)
+    # sys.path.append(DIR_NAME)
     preprocess_dn = PreprocessDN()     
     
 

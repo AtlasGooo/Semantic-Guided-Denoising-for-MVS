@@ -1,5 +1,7 @@
 
 from math import nan
+
+from torch._C import device
 from utils import *
 from preprocessDN import *
 
@@ -7,7 +9,7 @@ from preprocessDN import *
 # import torchvision
 
 
-class GraphLossDN():
+class GraphLossDN(nn.Module):
     def __init__(self,
         pLambda,
         pAlpha,
@@ -80,7 +82,7 @@ class GraphLossDN():
         '''
         
         
-        '''TODO: (test)'''
+        '''(test)'''
         test_counter = 0
         
         
@@ -88,7 +90,7 @@ class GraphLossDN():
             for aux_ni in range(mat_omega_all.shape[1]):
 
                 
-                '''TODO: (test)'''
+                ''' (test)'''
                 test_counter += 1
                 if(test_counter % ( int( (mat_d.shape[0]*mat_d.shape[1]) / 10 ) ) == 0):
                     print(f'test_counter in loss_omega_mat(): {test_counter}')
@@ -111,9 +113,6 @@ class GraphLossDN():
                     wij = wij_1*wij_2
                     mat_omega_all[aux_mi,aux_ni,j] = wij
                     
-                    '''TODO: (test) check whether wij is nan'''
-                    if(wij == nan):
-                        print("wij is nan !  wij_1: {wij_1}, wij_2: {wij_2}")
                     
         
 
@@ -217,7 +216,7 @@ class GraphLossDN():
         
         
         
-        '''TODO: (test) exame these element'''
+        '''(test) exame these element'''
         print(f'mat_omega_topk has nan? {torch.any(torch.isnan(mat_omega_topk))} \n')
         print(f'mat_duij has nan? {torch.any(torch.isnan(mat_duij))} \n')
         print(f'mat_uij has nan? {torch.any(torch.isnan(mat_uij))} \n')
@@ -226,10 +225,6 @@ class GraphLossDN():
         print(f'mat_duij: \n{mat_duij} \n')
         print(f'mat_uij: \n{mat_uij} \n')        
         
-        
-        
-        
-        '''TODO: the backpropagation interupt here !!! '''
         mat_loss_1 = torch.sqrt( torch.sum(torch.pow(mat_omega_topk,2) * mat_duij , -1) )
         mat_loss_2 = self._pAlpha * torch.sum(mat_omega_topk * mat_uij , -1)
         
@@ -262,7 +257,12 @@ if __name__ == '__main__':
     DIR_NAME = os.path.dirname(__file__)
     print(f'DIR_NAME: {DIR_NAME} \n')
     sys.path.append(DIR_NAME)    
-    IMG_OUTPUT_DIR = '/img_output_2'
+    IMG_OUTPUT_DIR = '/img_output_3'
+    
+    
+    DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print(f'DEVICE: cuda? {torch.cuda.is_available()}\n')
+    
     
     '''
     GraphLoss (original paper): 
@@ -275,12 +275,13 @@ if __name__ == '__main__':
         
         (grid search)
         lambda = 15, 25        
-        alpha = 3.5 ?
+        alpha = 3.5 ? 10 ?
     '''
     preprocess_dn = PreprocessDN()
+
     
     pLambda = 20
-    pAlpha = 3.5
+    pAlpha = 10
     pCigma_int = 0.07
     pCigma_spa = 3
     pB = 9
@@ -290,8 +291,6 @@ if __name__ == '__main__':
     print(f'Graph params:\n(pLambda,pAlpha,pCigma_int,pCigma_spa,pB,pK,pQ): \n({pLambda},{pAlpha},{pCigma_int},{pCigma_spa},{pB},{pK},{pQ})\n')
     
     
-         
-    '''TODO: '''
     # torch.autograd.set_detect_anomaly(True)
     
     
@@ -306,16 +305,21 @@ if __name__ == '__main__':
     cols = cv_MatI.shape[1] # x
     
     # cv_MatI = cv.resize(cv_MatI, (int(0.1*orig_rows),int(0.1*orig_cols)))
-    rowmin = int(0.37*rows)
-    rowmax = int(0.52*rows)
-    colmin = int(0.30*cols)
-    colmax = int(0.40*cols)
+    # rowmin = int(0.37*rows)
+    # rowmax = int(0.52*rows)
+    # colmin = int(0.30*cols)
+    # colmax = int(0.40*cols)
+    '''TODO: temporarily modify it for reducing running time'''
+    rowmin = int(0.39*rows)
+    rowmax = int(0.51*rows)
+    colmin = int(0.32*cols)
+    colmax = int(0.38*cols)
       
     
     
     cv_MatI = np.array(np.uint8(cv_MatI))
     cv_MatI = cv_MatI[rowmin:rowmax , colmin:colmax] 
-    print(f'cv_MatI numpy float32: \n{cv_MatI}') 
+    print(f'cv_MatI numpy: \n{cv_MatI}') 
     
     cutted_img_path = DIR_NAME + IMG_OUTPUT_DIR + '/cutted_img.png'  
     cv.imwrite(cutted_img_path,cv_MatI)   
@@ -326,15 +330,16 @@ if __name__ == '__main__':
     '''eliminate singular elements'''
     '''TODO: (test) (debug) check out the reason that nan exist'''    
     MatI = torch.Tensor(cv_MatI)    # In case it appear zero element
-
     MatI_lt_one = MatI < 10.0    
     MatI[MatI_lt_one] = 10.0
+    # MatI_lt_one = MatI < 1.0    
+    # MatI[MatI_lt_one] = 1.0    
+    
     
     temp_cv = np.uint8(MatI)
     preprocessed_img_path = DIR_NAME + IMG_OUTPUT_DIR + '/preprocessed_img.png'
     cv.imwrite(preprocessed_img_path,temp_cv)
-    # MatI_lt_one = MatI < 1.0    
-    # MatI[MatI_lt_one] = 1.0
+
     
     
     print(f'MatI: \n{MatI}')
@@ -343,7 +348,9 @@ if __name__ == '__main__':
     
     '''preprocess'''
     MatD,MatU = preprocess_dn.compute(MatI)
-    
+    '''TODO: try GPU'''
+    MatD.to(DEVICE)
+    MatU.to(DEVICE)
     
     '''eliminate singular elements'''
     MatD += 1e-10
@@ -351,9 +358,13 @@ if __name__ == '__main__':
     
     
     
-    MatC = torch.zeros_like(MatD)
-        
+    MatC = torch.ones_like(MatD)
     MatD_orig = MatD.clone()    # original di
+    
+    '''TODO: try GPU'''
+    MatC.to(DEVICE)
+    MatD_orig.to(DEVICE)
+    
     
     '''(test)'''
     print("debug:")
@@ -371,25 +382,37 @@ if __name__ == '__main__':
     betas = (0.9,0.999)
     eps = 1e-08
     optimizer = optim.Adam([MatD,MatU], lr=lr, betas=betas)
-    print(f'Optimize & Adam params:\n (n_iter,lr,betas,eps):\n({n_iter},{lr},{betas},{eps})]\n\n\n\n\n\n\n')
     
+
+    
+    print(f'Optimize & Adam params:\n(n_iter,lr,betas,eps):\n({n_iter},{lr},{betas},{eps})\n')
+    print(f'\n\n\n\n\n\n\n\n')
+    
+    
+    start_time = time.time()
     
     for t in range(n_iter):
+        
+        epoch_start_time = time.time()
+        
+        '''TODO: set to none ?'''
         optimizer.zero_grad(set_to_none=True)
-
+        
         loss = graphlossdn.lossfunc(MatD_orig, MatD, MatU, MatC)
+        print(f'\n\nloss.item(): {loss.item()}\n\n')        
+         
+        '''TODO: try GPU'''
+        loss.to(DEVICE)
+        
         # loss.requires_grad = True
             
-        '''TODO: (test)'''
-        print(f't:{t}, Finish constructing loss')                
+
+        print(f'Finish constructing loss, calculating backward() ... ')                
         
         
-        '''TODO:'''
-        # with torch.autograd.detect_anomaly():
-        #     loss.backward()
         loss.backward()        
         
-        '''TODO: (test)'''
+        '''(test)'''
         print(f'require grad ? {MatD.requires_grad} {MatU.requires_grad} {MatD_orig.requires_grad}')
         print(f'MatD grad and MatUx grad: {MatD.grad.shape} {MatU.grad.shape} \n')
         print(f'Grads has nan? MatD.grad: {torch.any(torch.isnan(MatD.grad))} \tMatU.grad: {torch.any(torch.isnan(MatU.grad))}\n')
@@ -402,23 +425,23 @@ if __name__ == '__main__':
         print(f'MatU.grad[0:10,0:10]: \n{MatU.grad[0:10,0:10]} \n')
         print(f'MatU.grad[10:20,10:20]: \n{MatU.grad[10:20,10:20]} \n')
         print(f'MatU.grad[20:30,20:30]:  \n{MatU.grad[20:30,20:30]} \n')
-        print(f't:{t}, loss.item(): {loss.item()}')   
+  
              
         # if( t % (n_iter / 100) == 0 ):
         #     print(t, loss.item())
         
-        
         optimizer.step()
         
         
-        '''TODO: (test)'''
+        '''(test)'''
         print(f'Optimized result :\nMatD: \nhas nan? {torch.any(torch.isnan(MatD))} \n{MatD} \n')
-        print(f'MatUx: \n has nan? {torch.any(torch.isnan(MatU))} \n{MatU[:,:,0]}  \n\n\n\n\n\n\n\n\n')
+        print(f'MatUx: \n has nan? {torch.any(torch.isnan(MatU))} \n{MatU[:,:,0]}\n')
+        print(f'Epoch {t} finished. Total time: {time.time()-start_time};  Epoch time: {time.time()-epoch_start_time} \n')
+        print(f'\n\n\n\n\n\n\n\n\n\n')
 
 
         if(not torch.any(torch.isnan(MatD))):
             MatI_reconstruct = 1.0 / MatD
-            # temp_cv = np.uint8(MatI_reconstruct)
             temp_cv = MatI_reconstruct.detach().numpy()
             temp_write_path = DIR_NAME + IMG_OUTPUT_DIR + '/optimized_' + str(t) + '.png'
             cv.imwrite(temp_write_path,temp_cv)
