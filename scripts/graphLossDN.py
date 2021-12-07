@@ -109,7 +109,7 @@ class GraphLossDN(nn.Module):
                     
                     Qij = torch.norm( mat_d[mi-cq:mi+cq+1, ni-cq:ni+cq+1] - mat_d[mj-cq:mj+cq+1, nj-cq:nj+cq+1] )**2
                     wij_1 = torch.exp( -Qij / (2*(self._pCigma_int**2)) )
-                    wij_2 = torch.exp( torch.sum(-torch.pow( imn-jmn, 2)) / (2*(self._pCigma_spa**2)) ) 
+                    wij_2 = torch.exp( -torch.sum(torch.pow( imn-jmn, 2)) / (2*(self._pCigma_spa**2)) ) 
                     wij = wij_1*wij_2
                     mat_omega_all[aux_mi,aux_ni,j] = wij
                     
@@ -257,7 +257,7 @@ if __name__ == '__main__':
     DIR_NAME = os.path.dirname(__file__)
     print(f'DIR_NAME: {DIR_NAME} \n')
     sys.path.append(DIR_NAME)    
-    IMG_OUTPUT_DIR = '/img_output_5'
+    IMG_OUTPUT_DIR = '/img_output_6'
     
     
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -389,7 +389,7 @@ if __name__ == '__main__':
     
     '''GraphLoss and Optimizer construction'''
     n_iter = 20
-    lr = 0.0008   # default: 0.001
+    lr = 0.0005   # default: 0.001
     betas = (0.9,0.999)
     eps = 1e-08
     optimizer = optim.Adam([MatD,MatU], lr=lr, betas=betas)
