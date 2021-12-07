@@ -3,7 +3,12 @@ from math import nan
 from utils import *
 from preprocessDN import *
 
+
+
+
 # import torchvision
+
+
 
 class GraphLossDN():
     def __init__(self,
@@ -257,7 +262,10 @@ if __name__ == '__main__':
     These are demos
     '''
     
+    DIR_NAME = os.path.dirname(__file__)
+    print(f'DIR_NAME: {DIR_NAME} \n')
     sys.path.append(DIR_NAME)    
+    IMG_OUTPUT_DIR = '/img_output'
     
     '''
     GraphLoss (original paper): 
@@ -292,7 +300,7 @@ if __name__ == '__main__':
     cols = cv_MatI.shape[1] # x
     
     # cv_MatI = cv.resize(cv_MatI, (int(0.1*orig_rows),int(0.1*orig_cols)))
-    rowmin = int(0.42*rows)
+    rowmin = int(0.37*rows)
     rowmax = int(0.52*rows)
     colmin = int(0.30*cols)
     colmax = int(0.40*cols)
@@ -301,21 +309,24 @@ if __name__ == '__main__':
     
     cv_MatI = np.array(np.uint8(cv_MatI))
     cv_MatI = cv_MatI[rowmin:rowmax , colmin:colmax] 
-    print(f'cv_MatI numpy float32: \n{cv_MatI}')        
-    # cv.imshow("cutted matI",cv_MatI)
-    # cv.waitKey(0)
+    print(f'cv_MatI numpy float32: \n{cv_MatI}') 
     
-
-      
-      
+    cutted_img_path = DIR_NAME + IMG_OUTPUT_DIR + '/cutted_img.png'  
+    cv.imwrite(cutted_img_path,cv_MatI)   
+     
+     
+     
       
     '''eliminate singular elements'''
+    '''TODO: (test) (debug) check out the reason that nan exist'''    
     MatI = torch.Tensor(cv_MatI)    # In case it appear zero element
 
-    
-    '''TODO: (test) (debug) check out the reason that nan exist'''
     MatI_lt_one = MatI < 10.0    
     MatI[MatI_lt_one] = 10.0
+    
+    temp_cv = np.uint8(MatI)
+    preprocessed_img_path = DIR_NAME + IMG_OUTPUT_DIR + '/preprocessed_img.png'
+    cv.imwrite(preprocessed_img_path,temp_cv)
     # MatI_lt_one = MatI < 1.0    
     # MatI[MatI_lt_one] = 1.0
     
@@ -338,7 +349,7 @@ if __name__ == '__main__':
         
     MatD_orig = MatD.clone()    # original di
     
-    '''TODO: (test)'''
+    '''(test)'''
     print("debug:")
     print(f'MatD.shape: {MatD.shape} \nhas nan? {torch.any(torch.isnan(MatD))} \nMatD: \n{MatD} \n')
     print(f'MatU.shape: {MatU.shape} \nhas nan? {torch.any(torch.isnan(MatU))} \nMatUx: \n{MatU[:,:,0]} \n\n\n\n')
@@ -350,7 +361,7 @@ if __name__ == '__main__':
     
     '''GraphLoss and Optimizer construction'''
     n_iter = 20
-    lr = 0.001   # default: 0.001
+    lr = 0.0005   # default: 0.001
     betas = (0.9,0.999)
     eps = 1e-08
     optimizer = optim.Adam([MatD,MatU], lr=lr, betas=betas)
@@ -396,8 +407,14 @@ if __name__ == '__main__':
         '''TODO: (test)'''
         print(f'Optimized result :\nMatD: \nhas nan? {torch.any(torch.isnan(MatD))} \n{MatD} \n')
         print(f'MatUx: \n has nan? {torch.any(torch.isnan(MatU))} \n{MatU[:,:,0]}  \n\n\n\n\n\n\n\n')
-        # temp_str = DIR_NAME + './temp_result/iter_' + str(t) + '.png'
-        # cv.imwrite(temp_str, np.uint8(MatI))
+
+
+        if(not torch.any(torch.isnan(MatD))):
+            MatI_reconstruct = 1.0 / MatD
+            # temp_cv = np.uint8(MatI_reconstruct)
+            temp_cv = MatI_reconstruct.detach().numpy()
+            temp_write_path = DIR_NAME + IMG_OUTPUT_DIR + '/optimized_' + str(t) + '.png'
+            cv.imwrite(temp_write_path,temp_cv)
         
         
         

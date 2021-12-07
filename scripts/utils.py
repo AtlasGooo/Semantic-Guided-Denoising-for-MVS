@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 import cv2 as cv
 
-DIR_NAME = os.path.dirname('__file__')
+# DIR_NAME = os.path.dirname('__file__')
 
 
 

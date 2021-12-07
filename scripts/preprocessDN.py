@@ -1,5 +1,6 @@
 
 
+import numpy
 from torch.autograd.grad_mode import F
 from utils import *
 
@@ -85,7 +86,11 @@ if __name__ == '__main__':
     cv.imshow("show middle",cv_MatI)    
     cv.waitKey(0)
     
+    torch_MatI = torch.Tensor(cv_MatI)
     
+    torch_to_cv = np.uint8(torch_MatI)
+    cv.imshow("torch to cv",torch_to_cv)
+    cv.waitKey(0)
     
     
     
