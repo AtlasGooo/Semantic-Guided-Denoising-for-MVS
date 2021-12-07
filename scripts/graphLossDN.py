@@ -4,10 +4,7 @@ from utils import *
 from preprocessDN import *
 
 
-
-
 # import torchvision
-
 
 
 class GraphLossDN():
@@ -265,7 +262,7 @@ if __name__ == '__main__':
     DIR_NAME = os.path.dirname(__file__)
     print(f'DIR_NAME: {DIR_NAME} \n')
     sys.path.append(DIR_NAME)    
-    IMG_OUTPUT_DIR = '/img_output'
+    IMG_OUTPUT_DIR = '/img_output_2'
     
     '''
     GraphLoss (original paper): 
@@ -281,7 +278,16 @@ if __name__ == '__main__':
         alpha = 3.5 ?
     '''
     preprocess_dn = PreprocessDN()
-    graphlossdn = GraphLossDN(pLambda=10, pAlpha=3.5, pCigma_int=0.07, pCigma_spa=3, pB=7, pK=10, pQ=3) 
+    
+    pLambda = 20
+    pAlpha = 3.5
+    pCigma_int = 0.07
+    pCigma_spa = 3
+    pB = 9
+    pK = 20
+    pQ = 3
+    graphlossdn = GraphLossDN(pLambda=pLambda, pAlpha=pAlpha, pCigma_int=pCigma_int, pCigma_spa=pCigma_spa, pB=pB, pK=pK, pQ=pQ) 
+    print(f'Graph params:\n(pLambda,pAlpha,pCigma_int,pCigma_spa,pB,pK,pQ): \n({pLambda},{pAlpha},{pCigma_int},{pCigma_spa},{pB},{pK},{pQ})\n')
     
     
          
@@ -352,7 +358,7 @@ if __name__ == '__main__':
     '''(test)'''
     print("debug:")
     print(f'MatD.shape: {MatD.shape} \nhas nan? {torch.any(torch.isnan(MatD))} \nMatD: \n{MatD} \n')
-    print(f'MatU.shape: {MatU.shape} \nhas nan? {torch.any(torch.isnan(MatU))} \nMatUx: \n{MatU[:,:,0]} \n\n\n\n')
+    print(f'MatU.shape: {MatU.shape} \nhas nan? {torch.any(torch.isnan(MatU))} \nMatUx: \n{MatU[:,:,0]} \n')
     print(f'MatD[0:10,35:45]: \n{MatD[0:10,35:45]} \n') 
     print(f'MatU[0:10,35:45]: \n{MatU[0:10,35:45]} \n')       
     MatD.requires_grad = True
@@ -365,6 +371,7 @@ if __name__ == '__main__':
     betas = (0.9,0.999)
     eps = 1e-08
     optimizer = optim.Adam([MatD,MatU], lr=lr, betas=betas)
+    print(f'Optimize & Adam params:\n (n_iter,lr,betas,eps):\n({n_iter},{lr},{betas},{eps})]\n\n\n\n\n\n\n')
     
     
     for t in range(n_iter):
@@ -406,7 +413,7 @@ if __name__ == '__main__':
         
         '''TODO: (test)'''
         print(f'Optimized result :\nMatD: \nhas nan? {torch.any(torch.isnan(MatD))} \n{MatD} \n')
-        print(f'MatUx: \n has nan? {torch.any(torch.isnan(MatU))} \n{MatU[:,:,0]}  \n\n\n\n\n\n\n\n')
+        print(f'MatUx: \n has nan? {torch.any(torch.isnan(MatU))} \n{MatU[:,:,0]}  \n\n\n\n\n\n\n\n\n')
 
 
         if(not torch.any(torch.isnan(MatD))):
