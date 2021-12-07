@@ -257,7 +257,7 @@ if __name__ == '__main__':
     DIR_NAME = os.path.dirname(__file__)
     print(f'DIR_NAME: {DIR_NAME} \n')
     sys.path.append(DIR_NAME)    
-    IMG_OUTPUT_DIR = '/img_output_3'
+    IMG_OUTPUT_DIR = '/img_output_5'
     
     
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -281,7 +281,7 @@ if __name__ == '__main__':
 
     
     pLambda = 20
-    pAlpha = 10
+    pAlpha = 15
     pCigma_int = 0.07
     pCigma_spa = 3
     pB = 9
@@ -297,36 +297,43 @@ if __name__ == '__main__':
   
     '''read image , copy from preprocessDN __main__'''
     cv_MatI = cv.imread('./images/d_image_2_000000.png',cv.IMREAD_GRAYSCALE)
-    # cv.imshow("origin",cv_MatI)
-    # cv.waitKey(0)
+    orig_Mat = cv.imread('./images/image_2_000000.png',cv.IMREAD_COLOR)
+    MatC = cv.imread('./images/c_image_2_000000.png',cv.IMREAD_GRAYSCALE)
+    
     
     
     rows = cv_MatI.shape[0] # y    
     cols = cv_MatI.shape[1] # x
-    
-    # cv_MatI = cv.resize(cv_MatI, (int(0.1*orig_rows),int(0.1*orig_cols)))
     # rowmin = int(0.37*rows)
     # rowmax = int(0.52*rows)
     # colmin = int(0.30*cols)
     # colmax = int(0.40*cols)
     '''TODO: temporarily modify it for reducing running time'''
-    rowmin = int(0.39*rows)
-    rowmax = int(0.51*rows)
-    colmin = int(0.32*cols)
-    colmax = int(0.38*cols)
+    rowmin = int(0.36*rows)
+    rowmax = int(0.52*rows)
+    colmin = int(0.31*cols)
+    colmax = int(0.39*cols)
       
     
     
     cv_MatI = np.array(np.uint8(cv_MatI))
     cv_MatI = cv_MatI[rowmin:rowmax , colmin:colmax] 
-    print(f'cv_MatI numpy: \n{cv_MatI}') 
+    orig_Mat = orig_Mat[rowmin:rowmax, colmin:colmax]
+    MatC = MatC[rowmin:rowmax, colmin:colmax]
+    
     
     cutted_img_path = DIR_NAME + IMG_OUTPUT_DIR + '/cutted_img.png'  
+    cutted_orig_img_path = DIR_NAME + IMG_OUTPUT_DIR + '/cutted_orig_img.png' 
+    cutted_matc_path = DIR_NAME + IMG_OUTPUT_DIR + '/cutted_matc.png'
+
+
     cv.imwrite(cutted_img_path,cv_MatI)   
+    cv.imwrite(cutted_orig_img_path,orig_Mat)
+    cv.imwrite(cutted_matc_path,MatC)
+
      
      
      
-      
     '''eliminate singular elements'''
     '''TODO: (test) (debug) check out the reason that nan exist'''    
     MatI = torch.Tensor(cv_MatI)    # In case it appear zero element
@@ -334,6 +341,12 @@ if __name__ == '__main__':
     MatI[MatI_lt_one] = 10.0
     # MatI_lt_one = MatI < 1.0    
     # MatI[MatI_lt_one] = 1.0    
+    
+    MatC = torch.tensor(MatC)
+    MatC = MatC / 255.0
+    
+    
+    
     
     
     temp_cv = np.uint8(MatI)
@@ -343,14 +356,12 @@ if __name__ == '__main__':
     
     
     print(f'MatI: \n{MatI}')
-    print(f'MatI[0:10,35:45]: \n{MatI[0:10,35:45]} \n')
+    print(f'MatC: \n{MatC}')
     
     
     '''preprocess'''
     MatD,MatU = preprocess_dn.compute(MatI)
-    '''TODO: try GPU'''
-    MatD.to(DEVICE)
-    MatU.to(DEVICE)
+
     
     '''eliminate singular elements'''
     MatD += 1e-10
@@ -358,10 +369,12 @@ if __name__ == '__main__':
     
     
     
-    MatC = torch.ones_like(MatD)
+
     MatD_orig = MatD.clone()    # original di
     
     '''TODO: try GPU'''
+    MatD.to(DEVICE)
+    MatU.to(DEVICE)    
     MatC.to(DEVICE)
     MatD_orig.to(DEVICE)
     
@@ -369,16 +382,14 @@ if __name__ == '__main__':
     '''(test)'''
     print("debug:")
     print(f'MatD.shape: {MatD.shape} \nhas nan? {torch.any(torch.isnan(MatD))} \nMatD: \n{MatD} \n')
-    print(f'MatU.shape: {MatU.shape} \nhas nan? {torch.any(torch.isnan(MatU))} \nMatUx: \n{MatU[:,:,0]} \n')
-    print(f'MatD[0:10,35:45]: \n{MatD[0:10,35:45]} \n') 
-    print(f'MatU[0:10,35:45]: \n{MatU[0:10,35:45]} \n')       
+    print(f'MatU.shape: {MatU.shape} \nhas nan? {torch.any(torch.isnan(MatU))} \nMatUx: \n{MatU[:,:,0]} \n')     
     MatD.requires_grad = True
     MatU.requires_grad = True
 
     
     '''GraphLoss and Optimizer construction'''
     n_iter = 20
-    lr = 0.0005   # default: 0.001
+    lr = 0.0008   # default: 0.001
     betas = (0.9,0.999)
     eps = 1e-08
     optimizer = optim.Adam([MatD,MatU], lr=lr, betas=betas)
