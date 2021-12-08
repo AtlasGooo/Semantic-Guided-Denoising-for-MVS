@@ -388,7 +388,7 @@ if __name__ == '__main__':
 
     
     '''GraphLoss and Optimizer construction'''
-    n_iter = 20
+    n_iter = 10
     lr = 0.0005   # default: 0.001
     betas = (0.9,0.999)
     eps = 1e-08
