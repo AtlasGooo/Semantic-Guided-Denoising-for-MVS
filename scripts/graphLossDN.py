@@ -257,7 +257,7 @@ if __name__ == '__main__':
     DIR_NAME = os.path.dirname(__file__)
     print(f'DIR_NAME: {DIR_NAME} \n')
     sys.path.append(DIR_NAME)    
-    IMG_OUTPUT_DIR = '/img_output_6'
+    IMG_OUTPUT_DIR = '/img_output_1'
     
     
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
