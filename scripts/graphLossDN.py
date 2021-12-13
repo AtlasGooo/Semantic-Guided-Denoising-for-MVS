@@ -1,7 +1,7 @@
 
 from math import nan
 
-from torch._C import device
+# from torch._C import device
 from utils import *
 from preprocessDN import *
 
@@ -285,7 +285,7 @@ if __name__ == '__main__':
     pCigma_int = 0.07
     pCigma_spa = 3
     pB = 9
-    pK = 20
+    pK = 60
     pQ = 3
     graphlossdn = GraphLossDN(pLambda=pLambda, pAlpha=pAlpha, pCigma_int=pCigma_int, pCigma_spa=pCigma_spa, pB=pB, pK=pK, pQ=pQ) 
     print(f'Graph params:\n(pLambda,pAlpha,pCigma_int,pCigma_spa,pB,pK,pQ): \n({pLambda},{pAlpha},{pCigma_int},{pCigma_spa},{pB},{pK},{pQ})\n')
